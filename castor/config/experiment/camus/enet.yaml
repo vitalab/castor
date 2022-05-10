@@ -1,0 +1,13 @@
+# @package _global_
+
+defaults:
+  - camus/segmentation
+  - override /task/model: enet
+
+task:
+  model:
+    init_channels: 32
+
+  optim:
+    lr: 1e-3
+    weight_decay: 1e-4

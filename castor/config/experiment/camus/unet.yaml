@@ -1,0 +1,10 @@
+# @package _global_
+
+defaults:
+  - camus/segmentation
+  - override /task/model: camus-unet
+
+task:
+  optim:
+    lr: 1e-3
+    weight_decay: 0

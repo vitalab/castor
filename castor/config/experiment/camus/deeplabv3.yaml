@@ -1,0 +1,13 @@
+# @package _global_
+
+defaults:
+  - camus/segmentation
+  - override /task/model: deeplabv3
+
+task:
+  model:
+    convert_grayscale_to_rgb: True
+
+  optim:
+    lr: 1e-4
+    weight_decay: 1e-4
