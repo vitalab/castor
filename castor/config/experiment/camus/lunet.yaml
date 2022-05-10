@@ -1,0 +1,18 @@
+# @package _global_
+
+defaults:
+  - camus/segmentation
+  - override /task/model: localization-net
+
+trainer:
+  max_epochs: 400
+
+task:
+  _target_: vital.tasks.segmentation.RoiSegmentationTask
+
+  model:
+    backbone: vital.models.segmentation.camus_unet.CamusUnet
+
+  optim:
+    lr: 1e-4
+    weight_decay: 0
