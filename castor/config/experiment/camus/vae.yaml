@@ -1,0 +1,20 @@
+# @package _global_
+
+defaults:
+  - override /task: beta-vae
+  - override /task/model: vae
+  - override /data: camus
+
+trainer:
+  max_epochs: 200
+  precision: 16
+
+data:
+  batch_size: 128
+  labels: [bg, lv, myo]
+  use_sequence: True
+
+task:
+  optim:
+    lr: 5e-4
+    weight_decay: 1e-3
