@@ -1,0 +1,13 @@
+# @package _global_
+
+defaults:
+  - camus/vae
+  - override /task: ar-vae
+
+task:
+  gamma: 0.1
+  delta: 16
+  attrs: [lv_area, lv_base_width, lv_length, lv_orientation, myo_area, epi_center_x, epi_center_y]
+
+  optim:
+    weight_decay: 5e-4
