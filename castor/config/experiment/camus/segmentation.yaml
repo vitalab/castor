@@ -1,6 +1,8 @@
 # @package _global_
 
 defaults:
+  - /data/results_processors@_global_.results_processors:
+    - camus/image_attributes_plot
   - override /task: segmentation
   - override /data: camus
 
