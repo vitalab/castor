@@ -3,6 +3,7 @@
 defaults:
   - /data/results_processors@_global_.results_processors:
     - camus/image_attributes_plot
+    - camus/image_temporal_metrics
   - override /task: segmentation
   - override /data: camus
 
