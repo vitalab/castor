@@ -1,0 +1,18 @@
+image_temporal_metrics:
+  _target_: castor.results.camus.image_temporal_metrics.ImageTemporalMetrics
+
+  # Base ResultsProcessor options
+  progress_bar: ${trainer.enable_progress_bar}
+  multiprocessing: ${results_processors_multiprocessing}
+
+  # Options specific to ResultsProcessor using CAMUS results iterators
+  results_path: ${data.predict.write_path}
+  use_sequence: ${data.use_sequence}
+
+  # Options specific to `ImageTemporalMetrics`
+  input: 'pred/raw'
+  attrs: [lv_area, lv_base_width, lv_length, lv_orientation, myo_area, epi_center_x, epi_center_y]
+  normalization_cfg: gt
+  measure_thresholds: False
+  threshold_margins: null
+  inconsistent_frames_only: False
