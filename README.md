@@ -88,23 +88,23 @@ These files are meant to be composed together by Hydra to produce a complete con
 Below we provide examples of how to run some basic commands using the Hydra CLI:
 ```shell script
 # list generic trainer options and datasets on which you can train
-vital-runner -h
+castor-runner -h
 
 # select high-level options of task to run, and architecture and dataset to use
-vital-runner task=<TASK> task.model=<MODEL> data=<DATASET>
+castor-runner task=<TASK> task.model=<MODEL> data=<DATASET>
 
 # display the available configuration options for a specific combination of task/model/data (e.g Enet on CAMUS)
-vital-runner task=segmentation task.model=enet data=camus -h
+castor-runner task=segmentation task.model=enet data=camus -h
 
 # train and test a specific system (e.g beta-VAE on CAMUS)
-vital-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> [optional args]
+castor-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> [optional args]
 
 # test a previously saved system (e.g. beta-VAE on CAMUS)
-vital-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> \
+castor-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> \
   ckpt=<CHECKPOINT_PATH> train=False
 
 # run one of the fully pre-configured 'experiment' from the `config/experiment` folder (e.g. Enet on CAMUS)
-vital-runner +experiment=camus/enet
+castor-runner +experiment=camus/enet
 ```
 
 To create your own pre-configured experiments, like the one used in the last example, we refer you to Hydra's own
@@ -119,7 +119,7 @@ tracking of experiments using Comet, simply use one of the pre-built Hydra confi
 configuration is for Comet in `online` mode, but you can use it in `offline` mode by selecting the corresponding config
 file when launching the [`vital` runner script](https://github.com/nathanpainchaud/vital/tree/dev/vital/vital/runner.py):
 ```bash
-vital-runner logger=comet/offline ...
+castor-runner logger=comet/offline ...
 ```
 To configure the Comet API and experiment's metadata, Comet relies on either i) environment variables (which you can set
 in a `.env` that will automatically be loaded using `python-dotenv`) or ii) a [`.comet.config`](.comet.config)` file. For
