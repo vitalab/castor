@@ -33,6 +33,9 @@ properties, i.e. anatomical validity and temporal consistency.
 
 To help you follow along with the organization of the repository, here is a summary of each major package's purpose:
 
+- [apps](castor/apps): interactive applications, either graphical or command line, that help to inspect data and/or
+results.
+
 - [metrics](castor/metrics): metrics specific to our cardiac images that are not part of the
 traditional libraries. The metrics are first divided by datasets on which they apply (see
 [ACDC](castor/metrics/acdc) or [CAMUS](castor/metrics/camus)). Afterwards,
