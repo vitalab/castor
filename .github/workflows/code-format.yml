@@ -1,0 +1,27 @@
+name: "Code Format"
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the master and dev branches
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install and run pre-commit hooks
+        uses: pre-commit/action@v3.0.0
