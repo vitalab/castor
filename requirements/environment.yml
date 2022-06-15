@@ -1,0 +1,13 @@
+name: castor
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.9
+  - pip
+  - setuptools
+  - cudatoolkit=10
+  - pip:
+      - -r requirements.txt
+      - -r dev.txt
+      - -e ../.
