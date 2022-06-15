@@ -1,0 +1,14 @@
+name: "Manage Pull Requests"
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened, edited ]
+
+jobs:
+  manage-pr:
+    name: Manage pull requests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prevent WIP PRs from being merged
+        uses: wip/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
