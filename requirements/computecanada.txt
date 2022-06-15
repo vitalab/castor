@@ -1,0 +1,32 @@
+# Packages for which Compute Canada offers specially built wheels
+# (that should be installed with --no-index flag from their wheelhouse)
+torch~=1.11.0
+torchvision~=0.12.0
+pathos
+natsort
+numpy
+scipy
+Pillow
+matplotlib
+seaborn
+SimpleITK
+nibabel
+scikit_image
+scikit_learn
+umap_learn[plot]
+h5py
+PyYAML
+toml
+pandas
+tqdm
+keras_preprocessing
+comet_ml
+pytorch-lightning~=1.6.0
+
+# Packages for which Compute Canada does not offer specially built wheels
+# (that must be installed from generic versions downloaded by pip)
+hydra-core~=1.2.0
+medpy
+torchinfo
+torchmetrics
+albumentations
