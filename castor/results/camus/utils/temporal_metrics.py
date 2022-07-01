@@ -21,7 +21,7 @@ class TemporalMetrics(Metrics):
     """Class that computes temporal coherence metrics on sequences of attributes' values."""
 
     desc = "temporal_metrics"
-    IterableResultT = PatientViews
+    ResultsCollection = PatientViews
     normalization_cfg_choices: Sequence[str]
 
     def __init__(

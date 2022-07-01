@@ -38,7 +38,7 @@ class SegmentationMetricsPlots(ResultsProcessor):
     ProcessingOutput = pd.DataFrame
     input_choices = [f"{CamusTags.pred}/{CamusTags.raw}", f"{CamusTags.pred}/{CamusTags.post}"]
     target_choices = [f"{CamusTags.gt}/{CamusTags.raw}"]
-    IterableResultT = PatientViewInstants
+    ResultsCollection = PatientViewInstants
     scores = {"dsc": metric.dc}
     distances = {"hd": metric.hd, "assd": metric.assd}
     _metrics_limits = {"dsc": (None, 1), "hd": (0, None), "assd": (0, None)}
@@ -124,7 +124,7 @@ class SegmentationMetricsPlots(ResultsProcessor):
         """Collects the metrics computed on all the results, and plots their distributions w.r.t. time.
 
         Args:
-            outputs: Mapping between each result in the iterable results and their metrics.
+            outputs: Mapping between each result in the results collection and their metrics.
             output_path: Root path where to save the plots.
         """
         # 1. Build dataframe containing all the metrics
