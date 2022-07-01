@@ -15,7 +15,7 @@ class AttributesPlots(ResultsProcessor):
     """Abstract class that plots attributes w.r.t. time."""
 
     desc = "attrs_plots"
-    IterableResultT = PatientViews
+    ResultsCollection = PatientViews
     input_choices: Sequence[str]  #: Tags of the data on which it is possible to get attributes w.r.t. time
 
     def __init__(self, inputs: Sequence[str], **kwargs):
