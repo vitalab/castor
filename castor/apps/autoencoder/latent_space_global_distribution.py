@@ -148,7 +148,10 @@ def main():
         )
 
     # Load system
-    autoencoder = typing.cast(SegmentationAutoencoderTask, load_from_checkpoint(args.pretrained_ae))
+    autoencoder = typing.cast(
+        SegmentationAutoencoderTask,
+        load_from_checkpoint(args.pretrained_ae, expected_checkpoint_type=SegmentationAutoencoderTask),
+    )
 
     # Encode the dataset's train and val subsets in the latent space, if provided
     latent_samples = {}

@@ -139,7 +139,10 @@ def main():
     args = parser.parse_args()
 
     # Load system
-    autoencoder = typing.cast(SegmentationAutoencoderTask, load_from_checkpoint(args.pretrained_ae))
+    autoencoder = typing.cast(
+        SegmentationAutoencoderTask,
+        load_from_checkpoint(args.pretrained_ae, expected_checkpoint_type=SegmentationAutoencoderTask),
+    )
 
     # Load precomputed encodings from the results
     encodings = load_encodings(autoencoder.hparams.choices.data, args.results_path, progress_bar=True)
