@@ -10,7 +10,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib.axes import Axes
 from vital.tasks.autoencoder import SegmentationAutoencoderTask
-from vital.utils.autoencoder import decode, load_encodings, rename_significant_dims
+from vital.tasks.utils.autoencoder import decode, load_encodings, rename_significant_dims
 from vital.utils.logging import configure_logging
 from vital.utils.saving import load_from_checkpoint
 
