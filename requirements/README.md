@@ -26,7 +26,7 @@ following commands add options that are not generally seen when configuring loca
 When using virtualenv, it is necessary to first create an environment like below. Note that it is important to first
 load the Python module to ensure that the virtual environment's base Python version is the appropriate one.
 ```shell script
-module load python/3.9
+module load python/3.10
 virtualenv --no-download {path to virtual env}
 ```
 
