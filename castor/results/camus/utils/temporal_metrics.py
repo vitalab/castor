@@ -1,20 +1,16 @@
 from argparse import ArgumentParser
-from typing import Mapping, Optional, Sequence, Tuple
+from pathlib import Path
+from typing import Mapping, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
-from vital.metrics.camus.temporal.config import attributes_bounds as vital_attributes_bounds
-from vital.metrics.camus.temporal.config import thresholds
-from vital.metrics.camus.temporal.utils import compute_temporal_consistency_metric
+import yaml
+from vital import get_vital_root
+from vital.metrics.evaluate.attribute import compute_temporal_consistency_metric
 from vital.results.camus.utils.data_struct import ViewResult
 from vital.results.camus.utils.itertools import PatientViews
 from vital.results.metrics import Metrics
 from vital.utils.parsing import StoreDictKeyPair
-
-from castor.metrics.camus.temporal.config import attributes_bounds as castor_attributes_bounds
-
-attributes_bounds = {**vital_attributes_bounds, **castor_attributes_bounds}
-"""Merge generic attributes bounds provided by `vital` to model-specific bounds provided by `castor`."""
 
 
 class TemporalMetrics(Metrics):
@@ -22,12 +18,12 @@ class TemporalMetrics(Metrics):
 
     desc = "temporal_metrics"
     ResultsCollection = PatientViews
-    normalization_cfg_choices: Sequence[str]
+    default_attribute_statistics_cfg: Path
 
     def __init__(
         self,
-        normalization_cfg: str = None,
-        measure_thresholds: bool = False,
+        attribute_statistics_cfg: Union[str, Path],
+        thresholds_cfg: Union[str, Path] = None,
         threshold_margins: Mapping[str, float] = None,
         inconsistent_frames_only: bool = False,
         **kwargs,
@@ -35,28 +31,32 @@ class TemporalMetrics(Metrics):
         """Initializes class instance.
 
         Args:
-            normalization_cfg: Tag indicating which set of statistics to use to normalize the attribute values, from
-                sets of statistics computed across different domains (e.g. ground truths, AR-VAE encodings, etc.)
+            attribute_statistics_cfg: File containing pre-computed statistics for each attribute, used to normalize
+                their values.
+            thresholds_cfg: File containing pre-computed thresholds on the acceptable temporal consistency metrics'
+                values for each attribute.
             measure_thresholds: Enable the computation of thresholds that should be used for each metric, instead of
                 the computation of metrics themselves. Should typically only be used when `input` refers to a
                 ground truth (or its derivative).
             threshold_margins: Margin to add to the thresholds for temporal inconsistencies, specific to each attribute.
-                Follows the eq. `thresh = thresh * (1 + margin)`.
+                Follows the eq. `thresh = thresh * (1 + margin)`. Should only be set when `thresholds_cfg` is provided.
             inconsistent_frames_only: For metrics apart from the proportion of inconsistent frames, only compute these
                 metrics on the inconsistent frames. Only when `measure_thresholds` is `False`.
             **kwargs: Additional parameters to pass along to ``super().__init__()``.
         """
         super().__init__(**kwargs)
-        if measure_thresholds and threshold_margins:
-            raise ValueError("You should only use one of `measure_thresholds` or `threshold_margins` at a time.")
-        if normalization_cfg is None:
-            # If `normalization_cfg` was not explicitly provided, default to the first choices in the list
-            normalization_cfg = self.normalization_cfg_choices[0]
-        self._attrs_bounds = attributes_bounds[normalization_cfg]
-        self._measure_thresholds = measure_thresholds
-        self._threshold_margins = threshold_margins
-        if self._threshold_margins is None:
-            self._threshold_margins = {}
+        if (thresholds_cfg is None) and threshold_margins:
+            raise ValueError("You should not set `threshold_margins` if you do not provide `thresholds` as well.")
+
+        # Load statistics on the attributes' distributions thresholds from the config files
+        with open(attribute_statistics_cfg) as f:
+            self._attrs_bounds = yaml.safe_load(f)
+        self._thresholds = None
+        if thresholds_cfg:
+            with open(thresholds_cfg) as f:
+                self._thresholds = yaml.safe_load(f)
+
+        self._threshold_margins = threshold_margins if threshold_margins else {}
         self._inconsistent_frames_only = inconsistent_frames_only
 
     def process_result(self, result: ViewResult) -> Optional[Tuple[str, "TemporalMetrics.ProcessingOutput"]]:
@@ -76,10 +76,8 @@ class TemporalMetrics(Metrics):
             temporal_consistency_abs_err = np.abs(
                 compute_temporal_consistency_metric(attr_vals, bounds=self._attrs_bounds[attr])
             )
-            if self._measure_thresholds:
-                metrics[f"{attr}_neigh_inter_diff"] = np.max(temporal_consistency_abs_err)
-            else:
-                threshold = thresholds[attr] * (1 + self._threshold_margins.get(attr, 0))
+            if self._thresholds:
+                threshold = self._thresholds[attr] * (1 + self._threshold_margins.get(attr, 0))
                 # Identifies the frames that are temporally inconsistent
                 inconsistent_frames_by_attr[attr] = temporal_consistency_abs_err > threshold
                 # Computes the ratios between the error and the tolerated threshold
@@ -87,8 +85,10 @@ class TemporalMetrics(Metrics):
                 if self._inconsistent_frames_only:
                     err_thresh_ratios = err_thresh_ratios[temporal_consistency_abs_err > threshold]
                 err_thresh_ratios_by_attr[f"{attr}_error_to_threshold_ratio"] = err_thresh_ratios
+            else:
+                metrics[f"{attr}_neigh_inter_diff"] = np.max(temporal_consistency_abs_err)
 
-        if not self._measure_thresholds:
+        if self._thresholds:
             # Computes the ratio of frames that are temporally inconsistent, for each of the measured attributes
             metrics.update(
                 {
@@ -114,7 +114,7 @@ class TemporalMetrics(Metrics):
     def _aggregate_metrics(self, metrics: pd.DataFrame) -> pd.DataFrame:
         """Computes global statistics for the metrics computed over each result.
 
-        If `measure_thresholds == True`, then the metrics are aggregated differently, since we're more interested in the
+        If no thresholds are provided, then the metrics are aggregated differently, since we're more interested in the
         limit cases to determine the thresholds than in the general case.
 
         Args:
@@ -123,9 +123,7 @@ class TemporalMetrics(Metrics):
         Returns:
             Global statistics on the metrics computed over each result.
         """
-        if self._measure_thresholds:
-            return metrics.agg(["max", "min", "mean", "std"])
-        else:
+        if self._thresholds:
             # Define groups of columns that have to be aggregated differently
             frames_ratio_cols = metrics.columns[metrics.columns.str.contains("frames_ratio")]
             err_thresh_ratio_cols = metrics.columns[metrics.columns.str.contains("error_to_threshold_ratio")]
@@ -145,6 +143,8 @@ class TemporalMetrics(Metrics):
                 [frames_ratio_agg_metrics, err_thresh_ratio_agg_metrics, temporal_consistency_agg_metrics],
                 axis="columns",
             )
+        else:
+            return metrics.agg(["max", "min", "mean", "std"])
 
     @classmethod
     def build_parser(cls) -> ArgumentParser:
@@ -154,35 +154,30 @@ class TemporalMetrics(Metrics):
             Parser object for temporal metrics processor.
         """
         parser = super().build_parser()
-
-        threshold_args = parser.add_mutually_exclusive_group()
-        threshold_args.add_argument(
-            "--measure_thresholds",
-            action="store_true",
-            help="Enable the computation of thresholds that should be used for each metric, instead of the "
-            "computation of metrics themselves. Should typically only be used when `input` refers to a groundtruth "
-            "(or its derivative).",
+        parser.add_argument(
+            "--attribute_statistics_cfg",
+            type=Path,
+            default=cls.default_attribute_statistics_cfg,
+            help="File containing pre-computed statistics for each attribute, used to normalize their values",
         )
-        threshold_args.add_argument(
+        parser.add_argument(
+            "--thresholds_cfg",
+            type=Path,
+            default=get_vital_root() / "vital/data/camus/statistics/attr_thresholds.yaml",
+            help="File containing pre-computed thresholds on the acceptable temporal consistency metrics' values for "
+            "each attribute",
+        )
+        parser.add_argument(
             "--threshold_margins",
             action=StoreDictKeyPair,
             metavar="THRESH1=MGN1,THRESH2=MGN2...",
             help="Margin to add to the thresholds for temporal inconsistencies, following the eq. "
-            "`thresh = thresh * (1 + margin)`",
+            "`thresh = thresh * (1 + margin)`. Should only be set when `thresholds_cfg` is provided.",
         )
-
         parser.add_argument(
             "--inconsistent_frames_only",
             action="store_true",
             help="For metrics apart from the proportion of inconsistent frames, only compute these metrics on the "
             "inconsistent frames",
-        )
-        parser.add_argument(
-            "--normalization_cfg",
-            type=str,
-            choices=cls.normalization_cfg_choices,
-            default=cls.normalization_cfg_choices[0],
-            help="Tag indicating which set of statistics to use to normalize the attribute values, from sets of "
-            "statistics computed across different domains (e.g. ground truths, AR-VAE encodings, etc.)",
         )
         return parser

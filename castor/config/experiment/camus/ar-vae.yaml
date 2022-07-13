@@ -4,7 +4,6 @@ defaults:
   - camus/vae
   - /data/results_processors@_global_.results_processors:
       - camus/latent_space_attributes_plot
-      - camus/latent_space_temporal_metrics
   - override /task: ar-vae
 
 task:
