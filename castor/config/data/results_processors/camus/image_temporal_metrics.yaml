@@ -12,7 +12,7 @@ image_temporal_metrics:
   # Options specific to `ImageTemporalMetrics`
   input: 'pred/raw'
   attrs: [lv_area, lv_base_width, lv_length, lv_orientation, myo_area, epi_center_x, epi_center_y]
-  normalization_cfg: gt
-  measure_thresholds: False
+  attribute_statistics_cfg: ${vital.root:}/vital/data/camus/statistics/image_attr_stats.yaml
+  thresholds_cfg: ${vital.root:}/vital/data/camus/statistics/attr_thresholds.yaml
   threshold_margins: null
   inconsistent_frames_only: False
