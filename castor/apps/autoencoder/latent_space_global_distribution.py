@@ -47,7 +47,8 @@ def interactive_latent_space_global_distribution(
     # If the latent space is not already 2D, use the UMAP dimensionality reduction algorithm
     # to learn a projection between the latent space and a 2D space ready to be displayed
     samples_data = np.vstack(list(samples.values()))
-    high_dim_latent_space = autoencoder.hparams.latent_dim > 2
+    latent_dim = samples_data.shape[1]
+    high_dim_latent_space = latent_dim > 2
     if high_dim_latent_space:
         logger.info("Learning UMAP embedding for latent space vectors...")
         reducer = umap.UMAP(**embedding_kwargs)
@@ -94,9 +95,7 @@ def interactive_latent_space_global_distribution(
 
     # Common options for the main panels to display
     encodings_title = (
-        "Latent space"
-        if not high_dim_latent_space
-        else f"2D UMAP embedding of the {autoencoder.hparams.latent_dim}D latent space"
+        "Latent space" if not high_dim_latent_space else f"2D UMAP embedding of the {latent_dim}D latent space"
     )
     return pn.Row(
         pn.Column(embedded_points.opts(width=800, height=800, title=encodings_title), labels),
