@@ -26,6 +26,8 @@ pytorch-lightning~=1.6.0
 # Packages for which Compute Canada does not offer specially built wheels
 # (that must be installed from generic versions downloaded by pip)
 hydra-core~=1.2.0
+python-dotenv
+StrEnum
 medpy
 torchinfo
 torchmetrics
