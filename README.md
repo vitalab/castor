@@ -36,11 +36,6 @@ To help you follow along with the organization of the repository, here is a summ
 - [apps](castor/apps): interactive applications, either graphical or command line, that help to inspect data and/or
 results.
 
-- [metrics](castor/metrics): metrics specific to our cardiac images that are not part of the
-traditional libraries. The metrics are first divided by datasets on which they apply (see
-[ACDC](castor/metrics/acdc) or [CAMUS](castor/metrics/camus)). Afterwards,
-the metrics are divided according to what they're computing (e.g. clinical or anatomical metrics).
-
 - [results](castor/results): API and executable scripts for processing results during the
 evaluation phase.
 
@@ -83,10 +78,10 @@ to setup the datasets:
 
 ### Configuring a Run
 This project uses Hydra to handle the configuration of the
-[`vital` runner script](https://github.com/nathanpainchaud/vital/tree/dev/vital/vital/runner.py). To understand how to
-use Hydra's CLI, refer to its [documentation](https://hydra.cc/docs/intro/). For this particular project, preset
-configurations for various parts of the `vital` runner pipeline are available in the [config package](castor/config).
-These files are meant to be composed together by Hydra to produce a complete configuration for a run.
+[`castor` runner script](castor/runner.py). To understand how to use Hydra's CLI, refer to its
+[documentation](https://hydra.cc/docs/intro/). For this particular project, preset configurations for various parts of
+the `castor` runner pipeline are available in the [config package](castor/config). These files are meant to be composed
+together by Hydra to produce a complete configuration for a run.
 
 Below we provide examples of how to run some basic commands using the Hydra CLI:
 ```shell script
@@ -94,24 +89,24 @@ Below we provide examples of how to run some basic commands using the Hydra CLI:
 castor-runner -h
 
 # select high-level options of task to run, and architecture and dataset to use
-castor-runner task=<TASK> task.model=<MODEL> data=<DATASET>
+castor-runner task=<TASK> task/model=<MODEL> data=<DATASET>
 
 # display the available configuration options for a specific combination of task/model/data (e.g Enet on CAMUS)
-castor-runner task=segmentation task.model=enet data=camus -h
+castor-runner task=segmentation task/model=enet data=camus -h
 
 # train and test a specific system (e.g beta-VAE on CAMUS)
-castor-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> [optional args]
+castor-runner task=autoencoder task/model=beta-vae data=camus data.dataset_path=<DATASET_PATH> [optional args]
 
 # test a previously saved system (e.g. beta-VAE on CAMUS)
-castor-runner task=autoencoder task.model=beta-vae data=camus data.dataset_path=<DATASET_PATH> \
+castor-runner task=autoencoder task/model=beta-vae data=camus data.dataset_path=<DATASET_PATH> \
   ckpt=<CHECKPOINT_PATH> train=False
 
 # run one of the fully pre-configured 'experiment' from the `config/experiment` folder (e.g. Enet on CAMUS)
 castor-runner +experiment=camus/enet
 ```
 
-To create your own pre-configured experiments, like the one used in the last example, we refer you to Hydra's own
-documentation on the subject.
+To create your own pre-configured experiments, like the one used in the last example, we refer you to [Hydra's own
+documentation on configuring experiments](https://hydra.cc/docs/patterns/configuring_experiments/).
 
 ### Tracking experiments
 By default, Lightning logs runs locally in a format interpretable by
@@ -120,7 +115,7 @@ By default, Lightning logs runs locally in a format interpretable by
 Another option is to use [Comet](https://www.comet.ml/) to log experiments, either online or offline. To enable the
 tracking of experiments using Comet, simply use one of the pre-built Hydra configuration for Comet. The default
 configuration is for Comet in `online` mode, but you can use it in `offline` mode by selecting the corresponding config
-file when launching the [`vital` runner script](https://github.com/nathanpainchaud/vital/tree/dev/vital/vital/runner.py):
+file when launching the [`castor` runner script](castor/runner.py):
 ```bash
 castor-runner logger=comet/offline ...
 ```
