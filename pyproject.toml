@@ -42,7 +42,7 @@ vital = { path = "./vital/", develop = true }
 pre-commit = "^2.20.0"
 isort = "==5.10.1"
 black = "==22.8.0"
-flake8 = "==3.9.2"
+flake8 = "==5.0.4"
 flake8-docstrings = "==1.6.0"
 
 [tool.poetry.scripts]
