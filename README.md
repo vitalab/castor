@@ -39,9 +39,6 @@ results.
 - [results](castor/results): API and executable scripts for processing results during the
 evaluation phase.
 
-- [requirements](requirements): conda and pip requirement files, along with detailed instructions on how to setup a
-working environment in different conditions (local, cluster, etc.)
-
 - [vital](https://github.com/nathanpainchaud/vital/tree/dev/vital): a separate repository (included as a
 [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)), of generic PyTorch modules, losses and metrics
 functions, and other tooling (e.g. image processing, parameter groups) that are commonly used. Also contains the code
@@ -51,22 +48,47 @@ for managing specialized medical imaging datasets, e.g. ACDC, CAMUS.
 ## How to Run
 
 ### Install
-First, download the code and setup a virtual environment:
+First, download the project's code:
 ```shell script
 # clone project
 git clone --recurse-submodules https://github.com/nathanpainchaud/castor.git
-
-# set-up project's environment and activate it
-conda env create -f requirements/environment.yml
-conda activate castor
 ```
+Next you have to install the project and its dependencies. The project's dependency management and packaging is handled
+by [`poetry`](https://python-poetry.org/) so the recommended way to install the project is in a virtual environment
+(managed by your favorite tool, e.g. `conda`, `virtualenv`, `poetry`, etc.), where
+[`poetry` is installed](https://python-poetry.org/docs/#installation). That way, you can simply run the command:
+```shell script
+poetry install
+```
+from the project's root directory to install it in editable mode, along with its regular and development dependencies.
+This command also takes care of installing the local `vital` submodule dependency in editable mode, so that you can
+edit the library and your modifications will be automatically taken into account in your virtual environment.
+
+> **Note**
+> When a [`poetry.lock`](poetry.lock) file is available in the repository, `poetry install` will automatically use it to
+> determine the versions of the packages to install, instead of resolving anew the dependencies in `pyproject.toml`.
+> When no `poetry.lock` file is available, the dependencies are resolved from those listed in `pyproject.toml`, and a
+> `poetry.lock` is generated automatically as a result.
+
+> **Warning**
+> Out-of-the-box, `poetry` offers flexibility on how to install projects. Packages are natively `pip`-installable just
+> as with a traditional `setup.py` by simply running `pip install <package>`. However, we recommend using `poetry`
+> because of an [issue with `pip`-installing projects with relative path dependencies](https://github.com/python-poetry/poetry/issues/5273)
+> (the `vital` submodule is specified using a relative path). When the linked issue gets fixed, the setup instructions
+> will be updated to mention the possibility of using `pip install .`, if one wishes to avoid using `poetry` entirely.
+
 To test that the project was installed successfully, you can try the following command from the Python REPL:
 ```python
 # now you can do:
 from castor import Whatever
 ```
-NOTE: All following commands in this README (and other READMEs for specific packages), will assume you're working from
-inside the Conda environment you've just setup.
+> **Note**
+> The instructions above for setting up an environment are for general purpose/local environments. For more specific use
+> cases, e.g. on DRAC clusters, please refer to the [installation README](INSTALLATION.md).
+
+> **Warning**
+> All following commands in this README (and other READMEs for specific packages), will assume you're working from
+> inside the virtual environment where the project is installed.
 
 ### Data
 Next, navigate to the data folder for either the
@@ -120,24 +142,26 @@ file when launching the [`castor` runner script](castor/runner.py):
 castor-runner logger=comet/offline ...
 ```
 To configure the Comet API and experiment's metadata, Comet relies on either i) environment variables (which you can set
-in a `.env` that will automatically be loaded using `python-dotenv`) or ii) a [`.comet.config`](.comet.config)` file. For
+in a `.env` that will automatically be loaded using `python-dotenv`) or ii) a `.comet.config` file. For
 more information on how to configure Comet using environment variables or the config file, refer to
 [Comet's configuration variables documentation](https://www.comet.ml/docs/python-sdk/advanced/#comet-configuration-variables).
 
 An example of a `.comet.config` file, with the appropriate fields to track experiments online, can be found
-[here](.comet.config). You can simply copy the file to the directory of your choice within your project (be sure
-not to commit your Comet API key!!!) and fill the values with your own Comet credentials and workspace setup.
+[here](https://github.com/nathanpainchaud/vital/tree/dev/.comet.config). You can simply copy the file to the directory
+of your choice within your project (be sure not to commit your Comet API key!!!) and fill the values with your own Comet
+credentials and workspace setup.
 
-> NOTE: No change to the code is necessary to change how the `CometLogger` handles the configuration from the
-> `.comet.config` file. The code simply reads the content of the `[comet]` section of the file and uses it to create a
-> `CometLogger` instance. That way, you simply have to ensure that the fields present in your configuration match the
-> behavior you want from the `CometLogger` integration in Lighting, and you're good to go!
+> **Note**
+> No change to the code is necessary to change how the `CometLogger` handles the configuration from the `.comet.config`
+> file. The code simply reads the content of the `[comet]` section of the file and uses it to create a `CometLogger`
+> instance. That way, you simply have to ensure that the fields present in your configuration match the behavior you
+> want from the `CometLogger` integration in Lighting, and you're good to go!
 
 ## How to Contribute
 
 ### Environment Setup
-When installing a python environment as [described above](#install), the resulting environment is already fully
-configured to start contributing to the project. There's nothing to change to get coding!
+When installing the dependencies using `poetry install` as [described above](#install), the resulting environment is
+already fully configured to start contributing to the project. There's nothing to change to get coding!
 
 ### Version Control Hooks
 Before first trying to commit to the project, it is important to setup the version control hooks, so that commits
@@ -148,7 +172,8 @@ the version control hooks, run the following command:
 pre-commit install
 ```
 
-> NOTE: In case you want to copy the pre-commit hooks configuration to your own project, you're welcome to :)
+> **Note**
+> In case you want to copy the pre-commit hooks configuration to your own project, you're welcome to :)
 > The configuration for each hook is located in the following files:
 > - [isort](https://github.com/timothycrosley/isort): [`pyproject.toml`](./pyproject.toml), `[tool.isort]` section
 > - [black](https://github.com/psf/black): [`pyproject.toml`](./pyproject.toml), `[tool.black]` section
