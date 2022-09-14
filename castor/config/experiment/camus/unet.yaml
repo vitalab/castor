@@ -8,3 +8,5 @@ task:
   optim:
     lr: 1e-3
     weight_decay: 0
+
+run_time_min: 90

@@ -21,3 +21,5 @@ task:
   optim:
     lr: 5e-4
     weight_decay: 1e-3
+
+run_time_min: 500
