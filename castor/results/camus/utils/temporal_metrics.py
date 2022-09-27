@@ -163,7 +163,7 @@ class TemporalMetrics(Metrics):
         parser.add_argument(
             "--thresholds_cfg",
             type=Path,
-            default=get_vital_root() / "vital/data/camus/statistics/attr_thresholds.yaml",
+            default=get_vital_root() / "data/camus/statistics/attr_thresholds.yaml",
             help="File containing pre-computed thresholds on the acceptable temporal consistency metrics' values for "
             "each attribute",
         )

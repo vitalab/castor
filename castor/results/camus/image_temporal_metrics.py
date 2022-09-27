@@ -8,7 +8,7 @@ class ImageTemporalMetrics(ImageAttributesMixin, TemporalMetrics):
     """Class that computes temporal coherence metrics on sequences of image attributes' values."""
 
     desc = f"seg_{TemporalMetrics.desc}"
-    default_attribute_statistics_cfg = get_vital_root() / "vital/data/camus/statistics/image_attr_stats.yaml"
+    default_attribute_statistics_cfg = get_vital_root() / "data/camus/statistics/image_attr_stats.yaml"
 
 
 def main():
