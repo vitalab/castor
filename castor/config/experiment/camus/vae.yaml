@@ -4,8 +4,8 @@ defaults:
   - /data/results_processors@_global_.results_processors:
     - camus/image_attributes_plot
     - camus/image_temporal_metrics
-  - override /task: beta-vae
-  - override /task/model: vae
+  - override /task: segmentation-beta-vae
+  - override /task/model: vae2d
   - override /data: camus
 
 trainer:

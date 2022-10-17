@@ -4,7 +4,7 @@ defaults:
   - camus/vae
   - /data/results_processors@_global_.results_processors:
       - camus/latent_space_attributes_plot
-  - override /task: ar-vae
+  - override /task: segmentation-ar-vae
 
 task:
   gamma: 0.1
