@@ -90,15 +90,79 @@ from castor import Whatever
 > All following commands in this README (and other READMEs for specific packages), will assume you're working from
 > inside the virtual environment where the project is installed.
 
-### Data
-Next, navigate to the data folder for either the
+### Use pretrained models for inference
+
+#### Comet model registry
+The pretrained baseline models listed in the following sections are provided as public models from our Comet model
+registry. Our code can handle how to download and load these models transparently, provided you
+[configure a Comet API key](https://www.comet.com/docs/v2/api-and-sdk/python-sdk/advanced/configuration/).
+
+In case you don't want to use our integration with Comet's API to automatically download the models in the background
+(or if you want to run the code in environments where there is no internet access, e.g. on HPC clusters), there is the
+option to manually download the checkpoints. For instructions on how do this, we refer you to
+[Comet's documentation on the subject](https://www.comet.com/docs/v2/guides/model-management/using-model-registry/#deploy-models).
+
+> **Note**
+> In case you manually download the pretrained models, you should replace the name of the model in the examples below
+> with the path of the `.ckpt` file (the `.ckpt` file can be extracted from the archive you get when downloading a model
+> from the Comet registry).
+
+#### Automatic segmentation using baseline models
+Available baseline segmentation models (for more information on how to use the Comet model registry, refer to
+[this section of the README](#comet-model-registry)):
+- [ENet: "nathanpainchaud/echo-enet"](https://www.comet.com/nathanpainchaud/model-registry/echo-enet)
+- [U-Net: "nathanpainchaud/echo-camusunet"](https://www.comet.com/nathanpainchaud/model-registry/echo-camusunet)
+
+In the following cell, you will find a minimal working example of how to load a pretrained model and use it to predict
+the segmentation on a new batch of data.
+```python
+from vital.utils.saving import load_from_checkpoint
+
+# Load a pretrained model from the publicly available models in nathanpainchaud's Comet model registry
+pretrained_model_name = "nathanpainchaud/echo-enet" # Can be replaced by any of the pretrained segmentation models listed above
+model = load_from_checkpoint(checkpoint=pretrained_model_name)
+
+# The result of the `load_from_checkpoint` call is an instance of the `vital.tasks.segmentation.SegmentationTask` class
+# which we can simply use as callable to predict segmentations on a batch of images
+your_image_batch: torch.Tensor # Tensor of shape (N, H, W) where N is the batch dimension
+predicted_segmentation = model(your_image_batch)
+```
+
+#### Post-processing segmentations for temporal consistency
+Available segmentation autoencoders (for more information on how to use the Comet model registry, refer to
+[this section of the README](#comet-model-registry)):
+- Cardiac AR-VAE: _To be published at a later date_
+
+In the following cell, you will find a minimal working example of how to load a pretrained model and use it to
+post-process a new sequence of 2D segmentations for temporal consistency.
+```python
+from vital.data.camus.utils.process import TEDTemporalRegularization
+
+# Instantiate the class that handles temporal consistency post-processing over segmentations, using a pretrained
+# cardiac AR-VAE from the publicly available models in nathanpainchaud's Comet model registry as a backbone
+# NOTE: If you use the provided pretrained AR-VAE, your segmentations should label the left ventricle as 1 and the
+#       myocardium as 2.
+pretrained_model_name = <MODEL_NAME> # Can be replaced by any of the pretrained autoencoder models listed above
+temporal_regularization = TEDTemporalRegularization(autoencoder=pretrained_model_name)
+
+# The `TEDTemporalRegularization` is an object that can be used as a callable to perform temporal consistency
+# post-processing. Since the result of the post-processing returns both the segmentation and the encoding in the latent
+# space, we have to access the "post_mask" key to get the segmentation itself
+your_image_sequence: torch.Tensor # Tensor of shape (N, H, W) where N is the temporal dimension
+postprocessed_segmentation = temporal_regularization(your_image_sequence)["post_mask"]
+```
+
+### Training the models yourself
+
+#### Data
+Navigate to the data folder for either the
 [ACDC](https://github.com/vitalab/vital/tree/dev/vital/data/acdc) or
 [CAMUS](https://github.com/vitalab/vital/tree/dev/vital/data/camus) dataset and follow the instructions on how
 to setup the datasets:
 - [ACDC instructions](https://github.com/vitalab/vital/blob/dev/vital/data/acdc/README.md#dataset-generator)
 - [CAMUS instructions](https://github.com/vitalab/vital/blob/dev/vital/data/camus/README.md#cross-validation)
 
-### Configuring a Run
+#### Configuring a Run
 This project uses Hydra to handle the configuration of the
 [`castor` runner script](castor/runner.py). To understand how to use Hydra's CLI, refer to its
 [documentation](https://hydra.cc/docs/intro/). For this particular project, preset configurations for various parts of
@@ -130,7 +194,7 @@ castor-runner +experiment=camus/enet
 To create your own pre-configured experiments, like the one used in the last example, we refer you to [Hydra's own
 documentation on configuring experiments](https://hydra.cc/docs/patterns/configuring_experiments/).
 
-### Tracking experiments
+#### Tracking experiments
 By default, Lightning logs runs locally in a format interpretable by
 [Tensorboard](https://www.tensorflow.org/tensorboard/).
 
