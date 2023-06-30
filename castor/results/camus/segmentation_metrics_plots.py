@@ -94,7 +94,6 @@ class SegmentationMetricsPlots(ResultsProcessor):
         """
         metrics = {}
         for input_tag in self.input_tags:
-
             pred, gt, voxelspacing = result[input_tag].data, result[self.target_tag].data, result.voxelspacing
 
             data_metrics = {}

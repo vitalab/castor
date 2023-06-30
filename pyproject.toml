@@ -40,10 +40,10 @@ vital = { path = "./vital/", develop = false }
 [tool.poetry.group.dev.dependencies]
 vital = { path = "./vital/", develop = true }
 pre-commit = "^2.20.0"
-isort = "==5.10.1"
-black = "==22.8.0"
-flake8 = "==5.0.4"
-flake8-docstrings = "==1.6.0"
+isort = "==5.12.0"
+black = "==23.3.0"
+flake8 = "==6.0.0"
+flake8-docstrings = "==1.7.0"
 
 [tool.poetry.scripts]
 castor-runner = "castor.runner:main"
@@ -54,7 +54,6 @@ latent-space-attributes-sweeper = "castor.apps.autoencoder.latent_space_attribut
 
 [tool.black]
 line-length = 120
-target-version = ["py310"]
 exclude = "(.eggs|.git|.hg|.mypy_cache|.nox|.tox|.venv|.svn|_build|buck-out|build|dist)"
 
 [tool.isort]
