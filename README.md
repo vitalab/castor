@@ -131,7 +131,8 @@ predicted_segmentation = model(your_image_batch)
 #### Post-processing segmentations for temporal consistency
 Available segmentation autoencoders (for more information on how to use the Comet model registry, refer to
 [this section of the README](#comet-model-registry)):
-- Cardiac AR-VAE: _To be published at a later date_
+- [VAE: "nathanpainchaud/echo-vae"](https://www.comet.com/nathanpainchaud/model-registry/echo-vae)
+- [AR-VAE: "nathanpainchaud/echo-arvae"](https://www.comet.com/nathanpainchaud/model-registry/echo-arvae)
 
 In the following cell, you will find a minimal working example of how to load a pretrained model and use it to
 post-process a new sequence of 2D segmentations for temporal consistency.
@@ -142,7 +143,7 @@ from vital.data.camus.utils.process import TEDTemporalRegularization
 # cardiac AR-VAE from the publicly available models in nathanpainchaud's Comet model registry as a backbone
 # NOTE: If you use the provided pretrained AR-VAE, your segmentations should label the left ventricle as 1 and the
 #       myocardium as 2.
-pretrained_model_name = <MODEL_NAME> # Can be replaced by any of the pretrained autoencoder models listed above
+pretrained_model_name = "nathanpainchaud/echo-arvae" # Can be replaced by any of the pretrained autoencoder models listed above
 temporal_regularization = TEDTemporalRegularization(autoencoder=pretrained_model_name)
 
 # The `TEDTemporalRegularization` is an object that can be used as a callable to perform temporal consistency
